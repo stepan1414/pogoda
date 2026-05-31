@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Погода на неделю | Прогноз по городам</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background: linear-gradient(135deg, #0b1120 0%, #19233c 50%, #1a2a4a 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* Заголовок */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            background: linear-gradient(135deg, #fff, #88ccff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #8a9bb5;
+            font-size: 18px;
+        }
+
+        /* Выбор города */
+        .city-selector {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .city-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 12px 24px;
+            border-radius: 40px;
+            color: #cbd5e6;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .city-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .city-btn.active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Карточка текущей погоды */
+        .current-weather {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.1));
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .current-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .city-name {
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .current-temp {
+            font-size: 64px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .current-icon {
+            font-size: 60px;
+        }
+
+        .current-desc {
+            font-size: 20px;
+            color: #cbd5e6;
+            margin-top: 10px;
+        }
+
+        .current-details {
+            display: flex;
+            gap: 30px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .current-detail {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 20px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Сетка прогноза на неделю */
+        .week-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+        }
+
+        .day-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 20px 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+        }
+
+        .day-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        .day-name {
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+        }
+
+        .day-date {
+            font-size: 12px;
+            color: #8a9bb5;
+            margin-top: 5px;
+        }
+
+        .day-icon {
+            font-size: 40px;
+            margin: 15px 0;
+        }
+
+        .day-temp {
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .day-temp-night {
+            font-size: 14px;
+            color: #8a9bb5;
+            margin-top: 5px;
+        }
+
+        .day-desc {
+            font-size: 12px;
+            color: #cbd5e6;
+            margin-top: 8px;
+        }
+
+        /* Футер */
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #5a6e8a;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 28px; }
+            .city-name { font-size: 24px; }
+            .current-temp { font-size: 48px; }
+            .week-grid { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌤️ Прогноз погоды на неделю</h1>
+            <p>Актуальные данные для вашего города</p>
+        </div>
+
+        <div class="city-selector" id="citySelector"></div>
+
+        <div class="current-weather" id="currentWeather"></div>
+
+        <div class="week-grid" id="weekGrid"></div>
+
+        <div class="footer">
+            📊 Данные обновлены • Прогноз на 7 дней
+        </div>
+    </div>
+
+    <script>
+        // Данные прогноза для каждого города (неделя)
+        const citiesData = {
+            moscow: {
+                name: "Москва",
+                current: { temp: "+22°", icon: "☀️", desc: "Ясно, солнечно", humidity: "45%", wind: "3 м/с", feels: "+20°" },
+                week: [
+                    { day: "ПН", date: "02.06", icon: "☀️", temp: "+22°", night: "+13°", desc: "Солнечно" },
+                    { day: "ВТ", date: "03.06", icon: "⛅", temp: "+20°", night: "+12°", desc: "Облачно" },
+                    { day: "СР", date: "04.06", icon: "🌧️", temp: "+17°", night: "+11°", desc: "Дождь" },
+                    { day: "ЧТ", date: "05.06", icon: "☁️", temp: "+18°", night: "+10°", desc: "Пасмурно" },
+                    { day: "ПТ", date: "06.06", icon: "⛅", temp: "+19°", night: "+11°", desc: "Переменная" },
+                    { day: "СБ", date: "07.06", icon: "☀️", temp: "+23°", night: "+14°", desc: "Солнечно" },
+                    { day: "ВС", date: "08.06", icon: "☀️", temp: "+24°", night: "+15°", desc: "Жарко" }
+                ]
+            },
+            spb: {
+                name: "Санкт-Петербург",
+                current: { temp: "+16°", icon: "☁️", desc: "Пасмурно", humidity: "72%", wind: "5 м/с", feels: "+14°" },
+                week: [
+                    { day: "ПН", date: "02.06", icon: "☁️", temp: "+16°", night: "+11°", desc: "Облачно" },
+                    { day: "ВТ", date: "03.06", icon: "🌧️", temp: "+14°", night: "+10°", desc: "Дождь" },
+                    { day: "СР", date: "04.06", icon: "🌧️", temp: "+13°", night: "+9°", desc: "Ливень" },
+                    { day: "ЧТ", date: "05.06", icon: "⛅", temp: "+15°", night: "+10°", desc: "Прояснения" },
+                    { day: "ПТ", date: "06.06", icon: "☀️", temp: "+18°", night: "+12°", desc: "Солнечно" },
+                    { day: "СБ", date: "07.06", icon: "☀️", temp: "+19°", night: "+13°", desc: "Ясно" },
+                    { day: "ВС", date: "08.06", icon: "⛅", temp: "+17°", night: "+11°", desc: "Облачно" }
+                ]
+            },
+            novosibirsk: {
+                name: "Новосибирск",
+                current: { temp: "+12°", icon: "⛅", desc: "Переменная облачность", humidity: "58%", wind: "4 м/с", feels: "+10°" },
+                week: [
+                    { day: "ПН", date: "02.06", icon: "⛅", temp: "+12°", night: "+5°", desc: "Облачно" },
+                    { day: "ВТ", date: "03.06", icon: "☀️", temp: "+15°", night: "+6°", desc: "Солнечно" },
+                    { day: "СР", date: "04.06", icon: "☀️", temp: "+17°", night: "+7°", desc: "Ясно" },
+                    { day: "ЧТ", date: "05.06", icon: "🌧️", temp: "+14°", night: "+6°", desc: "Дождь" },
+                    { day: "ПТ", date: "06.06", icon: "⛅", temp: "+13°", night: "+5°", desc: "Прохладно" },
+                    { day: "СБ", date: "07.06", icon: "☀️", temp: "+16°", night: "+7°", desc: "Солнечно" },
+                    { day: "ВС", date: "08.06", icon: "☀️", temp: "+18°", night: "+8°", desc: "Тепло" }
+                ]
+            },
+            ekaterinburg: {
+                name: "Екатеринбург",
+                current: { temp: "+14°", icon: "☁️", desc: "Облачно", humidity: "62%", wind: "4 м/с", feels: "+12°" },
+                week: [
+                    { day: "ПН", date: "02.06", icon: "☁️", temp: "+14°", night: "+7°", desc: "Пасмурно" },
+                    { day: "ВТ", date: "03.06", icon: "🌧️", temp: "+12°", night: "+6°", desc: "Дождь" },
+                    { day: "СР", date: "04.06", icon: "⛅", temp: "+13°", night: "+7°", desc: "Облачно" },
+                    { day: "ЧТ", date: "05.06", icon: "☀️", temp: "+16°", night: "+8°", desc: "Солнечно" },
+                    { day: "ПТ", date: "06.06", icon: "☀️", temp: "+18°", night: "+9°", desc: "Ясно" },
+                    { day: "СБ", date: "07.06", icon: "⛅", temp: "+17°", night: "+8°", desc: "Переменная" },
+                    { day: "ВС", date: "08.06", icon: "🌧️", temp: "+15°", night: "+7°", desc: "Дождь" }
+                ]
+            },
+            kazan: {
+                name: "Казань",
+                current: { temp: "+19°", icon: "☀️", desc: "Солнечно", humidity: "48%", wind: "3 м/с", feels: "+18°" },
+                week: [
+                    { day: "ПН", date: "02.06", icon: "☀️", temp: "+19°", night: "+11°", desc: "Ясно" },
+                    { day: "ВТ", date: "03.06", icon: "☀️", temp: "+21°", night: "+12°", desc: "Солнечно" },
+                    { day: "СР", date: "04.06", icon: "⛅", temp: "+20°", night: "+12°", desc: "Облачно" },
+                    { day: "ЧТ", date: "05.06", icon: "🌧️", temp: "+17°", night: "+10°", desc: "Дождь" },
+                    { day: "ПТ", date: "06.06", icon: "⛅", temp: "+18°", night: "+10°", desc: "Прояснения" },
+                    { day: "СБ", date: "07.06", icon: "☀️", temp: "+22°", night: "+13°", desc: "Солнечно" },
+                    { day: "ВС", date: "08.06", icon: "☀️", temp: "+23°", night: "+14°", desc: "Жарко" }
+                ]
+            },
+            sochi: {
+                name: "Сочи",
+                current: { temp: "+24°", icon: "☀️", desc: "Солнечно", humidity: "55%", wind: "2 м/с", feels: "+25°" },
+                week: [
+                    { day: "ПН", date: "02.06", icon: "☀️", temp: "+24°", night: "+18°", desc: "Солнечно" },
+                    { day: "ВТ", date: "03.06", icon: "☀️", temp: "+26°", night: "+19°", desc: "Жарко" },
+                    { day: "СР", date: "04.06", icon: "⛅", temp: "+25°", night: "+18°", desc: "Облачно" },
+                    { day: "ЧТ", date: "05.06", icon: "🌧️", temp: "+22°", night: "+17°", desc: "Дождь" },
+                    { day: "ПТ", date: "06.06", icon: "☀️", temp: "+24°", night: "+18°", desc: "Солнечно" },
+                    { day: "СБ", date: "07.06", icon: "☀️", temp: "+27°", night: "+20°", desc: "Очень жарко" },
+                    { day: "ВС", date: "08.06", icon: "⛅", temp: "+26°", night: "+19°", desc: "Тепло" }
+                ]
+            }
+        };
+
+        let currentCity = "moscow";
+
+        // Функция отображения кнопок городов
+        function renderCitySelector() {
+            const selector = document.getElementById("citySelector");
+            selector.innerHTML = "";
+            for (const [key, city] of Object.entries(citiesData)) {
+                const btn = document.createElement("button");
+                btn.className = `city-btn ${key === currentCity ? "active" : ""}`;
+                btn.textContent = city.name;
+                btn.onclick = () => {
+                    currentCity = key;
+                    renderCitySelector();
+                    renderCurrentWeather();
+                    renderWeekForecast();
+                };
+                selector.appendChild(btn);
+            }
+        }
+
+        // Текущая погода
+        function renderCurrentWeather() {
+            const city = citiesData[currentCity];
+            const current = city.current;
+            const html = `
+                <div class="current-header">
+                    <div>
+                        <div class="city-name">${city.name}</div>
+                        <div class="current-desc">${current.desc}</div>
+                    </div>
+                    <div class="current-icon">${current.icon}</div>
+                    <div class="current-temp">${current.temp}</div>
+                </div>
+                <div class="current-details">
+                    <div class="current-detail">💧 Влажность: ${current.humidity}</div>
+                    <div class="current-detail">🌬️ Ветер: ${current.wind}</div>
+                    <div class="current-detail">🌡️ Ощущается: ${current.feels}</div>
+                </div>
+            `;
+            document.getElementById("currentWeather").innerHTML = html;
+        }
+
+        // Прогноз на неделю
+        function renderWeekForecast() {
+            const city = citiesData[currentCity];
+            const week = city.week;
+            const grid = document.getElementById("weekGrid");
+            grid.innerHTML = "";
+            week.forEach(day => {
+                const card = document.createElement("div");
+                card.className = "day-card";
+                card.innerHTML = `
+                    <div class="day-name">${day.day}</div>
+                    <div class="day-date">${day.date}</div>
+                    <div class="day-icon">${day.icon}</div>
+                    <div class="day-temp">${day.temp}</div>
+                    <div class="day-temp-night">${day.night}</div>
+                    <div class="day-desc">${day.desc}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Инициализация
+        renderCitySelector();
+        renderCurrentWeather();
+        renderWeekForecast();
+    </script>
+</body>
+</html>
