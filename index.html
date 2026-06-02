@@ -191,10 +191,36 @@
             margin-top: 8px;
         }
 
+        /* Кнопка перехода в Telegram-бота */
+        .telegram-link {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+        
+        .telegram-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #0088cc, #004f7a);
+            color: white;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .telegram-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 136, 204, 0.4);
+        }
+
         /* Футер */
         .footer {
             text-align: center;
-            margin-top: 50px;
+            margin-top: 30px;
             color: #5a6e8a;
             font-size: 12px;
         }
@@ -219,6 +245,13 @@
         <div class="current-weather" id="currentWeather"></div>
 
         <div class="week-grid" id="weekGrid"></div>
+
+        <!-- Кнопка перехода в Telegram-бота (ссылка на @MoyPogodny14Bot) -->
+        <div class="telegram-link">
+            <a href="https://t.me/MoyPogodny14Bot" class="telegram-btn" target="_blank">
+                📱 Открыть в Telegram-боте
+            </a>
+        </div>
 
         <div class="footer">
             📊 Данные обновлены • Прогноз на 7 дней
@@ -310,7 +343,6 @@
 
         let currentCity = "moscow";
 
-        // Функция отображения кнопок городов
         function renderCitySelector() {
             const selector = document.getElementById("citySelector");
             selector.innerHTML = "";
@@ -328,7 +360,6 @@
             }
         }
 
-        // Текущая погода
         function renderCurrentWeather() {
             const city = citiesData[currentCity];
             const current = city.current;
@@ -350,7 +381,6 @@
             document.getElementById("currentWeather").innerHTML = html;
         }
 
-        // Прогноз на неделю
         function renderWeekForecast() {
             const city = citiesData[currentCity];
             const week = city.week;
@@ -371,7 +401,6 @@
             });
         }
 
-        // Инициализация
         renderCitySelector();
         renderCurrentWeather();
         renderWeekForecast();
